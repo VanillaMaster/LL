@@ -18,17 +18,23 @@
 struct BrowserProcessHandlersItem {
 	struct _cef_browser_process_handler_t* (CEF_CALLBACK* getHandler)(struct _cef_app_t* self);
 
-	int(CEF_CALLBACK* release)(struct _cef_base_ref_counted_t* self);
+	decltype(_cef_base_ref_counted_t::release) release;
 };
 
 struct ContextInitializedCallBacksItem {
-	void(CEF_CALLBACK* on_context_initialized)(struct _cef_browser_process_handler_t* self);
+	void(CEF_CALLBACK* callBack)(struct _cef_browser_process_handler_t* self);
 
-	int(CEF_CALLBACK* release)(struct _cef_base_ref_counted_t* self);
+	decltype(_cef_base_ref_counted_t::release) release;
+};
+
+struct ProcessMessageReceivedCallBacksItem {
+	decltype(_cef_client_t::on_process_message_received) callBack;
+	decltype(_cef_base_ref_counted_t::release) release;
 };
 
 std::unordered_map<void*, BrowserProcessHandlersItem> browserProcessHandlers;
 std::unordered_map<void*, ContextInitializedCallBacksItem> contextInitializedCallBacks;
+std::unordered_map<void*, ProcessMessageReceivedCallBacksItem> processMessageReceivedCalls;
 
 static Proxy<decltype(cef_initialize)> cefInitialize {};
 
@@ -48,6 +54,13 @@ int(CEF_CALLBACK releaseContextInitializedCallBack)(struct _cef_base_ref_counted
 	return result;
 }
 
+int(CEF_CALLBACK releaseProcessMessageReceivedCallBack)(struct _cef_base_ref_counted_t* self) {
+	auto [_, release] = processMessageReceivedCalls[self];
+	auto const result = release(self);
+	if (result) processMessageReceivedCalls.erase(self);
+	return result;
+}
+
 void(CEF_CALLBACK on_context_initialized)(struct _cef_browser_process_handler_t* self) {
 	std::wofstream log("D:/log/browser.log", std::ios_base::app | std::ios_base::out);
 	log << L"on_context_initialized" << L"\n";
@@ -59,7 +72,7 @@ void(CEF_CALLBACK on_context_initialized)(struct _cef_browser_process_handler_t*
 }
 
 struct _cef_browser_process_handler_t* (CEF_CALLBACK get_browser_process_handler)(struct _cef_app_t* self) {
-	auto [getHandler, _] = browserProcessHandlers[self];
+	auto const [getHandler, _] = browserProcessHandlers[self];
 	auto const handler = getHandler(self);
 
 	contextInitializedCallBacks[handler] = { handler->on_context_initialized, handler->base.release };
@@ -84,6 +97,32 @@ int cef_initialize(
 	return cefInitialize.call(args, settings, application, windows_sandbox_info);
 }
 
+int(CEF_CALLBACK on_process_message_received)(
+	struct _cef_client_t* self,
+	struct _cef_browser_t* browser,
+	struct _cef_frame_t* frame,
+	cef_process_id_t source_process,
+	struct _cef_process_message_t* message
+) {
+	auto const [callBack, _] = processMessageReceivedCalls[self];
+
+	std::wofstream log("D:/log/browser.log", std::ios_base::app | std::ios_base::out);
+	if (source_process == PID_RENDERER) {
+		auto name = message->get_name(message);
+		std::wstring n(name->str, name->length);
+
+		log << L"[msg] " << n << L"\n";
+
+		if (n == L"__devtools__") {
+			openDevTools(browser);
+		}
+		cef_string_userfree_free(name);
+	}
+	log.close();
+
+	return callBack(self, browser, frame, source_process, message);
+}
+
 int cef_browser_host_create_browser(
 	const cef_window_info_t* windowInfo,
 	struct _cef_client_t* client,
@@ -104,31 +143,10 @@ int cef_browser_host_create_browser(
 	log << host << ":" << path << "\n";
 
 	if (!host.compare(L"127.0.0.1") && !path.compare(L"/bootstrap.html")) {
+		processMessageReceivedCalls[client] = { client->on_process_message_received, client->base.release };
 
-		static auto OnProcessMessageReceived = client->on_process_message_received;
-		client->on_process_message_received = [](
-			struct _cef_client_t* self,
-			struct _cef_browser_t* browser,
-			struct _cef_frame_t* frame,
-			cef_process_id_t source_process,
-			struct _cef_process_message_t* message
-		) {
-			std::wofstream log("D:/log/browser.log", std::ios_base::app | std::ios_base::out);
-			if (source_process == PID_RENDERER) {
-				auto name = message->get_name(message);
-				std::wstring n(name->str, name->length);
-
-				log << L"[msg] " << n << L"\n";
-
-				if (n == L"__devtools__") {
-					openDevTools(browser);
-				}
-				cef_string_userfree_free(name);
-			}
-			log.close();
-			return OnProcessMessageReceived(self, browser, frame, source_process, message);
-		};
-
+		client->base.release = releaseProcessMessageReceivedCallBack;
+		client->on_process_message_received = on_process_message_received;
 	}
 
 	log.close();

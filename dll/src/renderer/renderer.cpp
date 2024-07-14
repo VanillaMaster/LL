@@ -13,9 +13,8 @@
 #include <fstream>
 
 struct RenderProcessHandlersItem {
-    struct _cef_render_process_handler_t* (CEF_CALLBACK* getHandler)(struct _cef_app_t* self);
-
-    int(CEF_CALLBACK* release)(struct _cef_base_ref_counted_t* self);
+    decltype(cef_app_t::get_render_process_handler) getHandler;
+    decltype(_cef_base_ref_counted_t::release) release;
 };
 
 struct ContextCreatedCallBacksItem {
@@ -23,17 +22,8 @@ struct ContextCreatedCallBacksItem {
     decltype(_cef_base_ref_counted_t::release) release;
 };
 
-struct ContextReleasedCallBacksItem {
-    decltype(_cef_render_process_handler_t::on_context_released) callBack;
-    decltype(_cef_base_ref_counted_t::release) release;
-};
-
 std::unordered_map<void*, RenderProcessHandlersItem> renderProcessHandlers;
-
 std::unordered_map<void*, ContextCreatedCallBacksItem> contextCreatedCallBacks;
-std::unordered_map<void*, ContextReleasedCallBacksItem> contextReleasedCallBacks;
-
-//std::unordered_map<void*, std::vector<_cef>>;
 
 static Proxy<decltype(cef_execute_process)> CefExecuteProcess{};
 
@@ -132,10 +122,10 @@ int cef_execute_process(const cef_main_args_t* args, cef_app_t* app, void* windo
     std::wofstream log("D:/log/renderer.log", std::ios_base::app | std::ios_base::out);
     log << L"cef_execute_process\n";
 
-    //renderProcessHandlers[app] = { app->get_render_process_handler, app->base.release };
+    renderProcessHandlers[app] = { app->get_render_process_handler, app->base.release };
 
-    //app->base.release = &releaseRenderProcessHandler;
-    //app->get_render_process_handler = &get_render_process_handler;
+    app->base.release = &releaseRenderProcessHandler;
+    app->get_render_process_handler = &get_render_process_handler;
 
     log.close();
 
