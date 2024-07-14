@@ -1,0 +1,86 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Source Files\browser">
+      <UniqueIdentifier>{f2f505ca-e90f-4011-8fc2-2112f6b33325}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\renderer">
+      <UniqueIdentifier>{de7c3479-45a1-44f4-98e1-21eac579b7f5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\d3d9">
+      <UniqueIdentifier>{d439e4f1-108b-416f-8f09-0d9b9c5435c2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\devtools">
+      <UniqueIdentifier>{ab966564-806f-42e9-8710-ed06295b0336}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\dllmain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\browser\browser.cpp">
+      <Filter>Source Files\browser</Filter>
+    </ClCompile>
+    <ClCompile Include="src\renderer\NativeV8Handler.cpp">
+      <Filter>Source Files\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\renderer\renderer.cpp">
+      <Filter>Source Files\renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\d3d9\d3d9.cpp">
+      <Filter>Source Files\d3d9</Filter>
+    </ClCompile>
+    <ClCompile Include="src\devtools\DevToolsClient.cpp">
+      <Filter>Source Files\devtools</Filter>
+    </ClCompile>
+    <ClCompile Include="src\devtools\DevToolsLifeSpanHandler.cpp">
+      <Filter>Source Files\devtools</Filter>
+    </ClCompile>
+    <ClCompile Include="src\devtools\devtools.cpp">
+      <Filter>Source Files\devtools</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\proxy.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\browser\browser.h">
+      <Filter>Source Files\browser</Filter>
+    </ClInclude>
+    <ClInclude Include="src\renderer\NativeV8Handler.h">
+      <Filter>Source Files\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\renderer\renderer.h">
+      <Filter>Source Files\renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\d3d9\d3d9.h">
+      <Filter>Source Files\d3d9</Filter>
+    </ClInclude>
+    <ClInclude Include="src\devtools\devtools.h">
+      <Filter>Source Files\devtools</Filter>
+    </ClInclude>
+    <ClInclude Include="src\devtools\DevToolsClient.h">
+      <Filter>Source Files\devtools</Filter>
+    </ClInclude>
+    <ClInclude Include="src\devtools\DevToolsLifeSpanHandler.h">
+      <Filter>Source Files\devtools</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="res\Source.def">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
+</Project>

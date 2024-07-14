@@ -1,0 +1,8 @@
+[submodule "lib/cef"]
+	path = lib/cef
+	url = https://vanillamaster@bitbucket.org/vanilla-master/cef.git
+	branch = lib
+[submodule "dependencies/include"]
+	path = dependencies/include
+	url = https://vanillamaster@bitbucket.org/vanilla-master/cef.git
+	branch = include
