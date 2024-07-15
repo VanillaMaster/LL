@@ -7,6 +7,8 @@
 
 #include "../devtools/devtools.h"
 
+#include "../filter/filter.h"
+
 #include "include/capi/cef_app_capi.h"
 #include "include/capi/cef_client_capi.h"
 #include "include/capi/cef_browser_capi.h"
@@ -143,6 +145,9 @@ int cef_browser_host_create_browser(
 	log << host << ":" << path << "\n";
 
 	if (!host.compare(L"127.0.0.1") && !path.compare(L"/bootstrap.html")) {
+		
+		hookRequestHandler(client);
+
 		processMessageReceivedCalls[client] = { client->on_process_message_received, client->base.release };
 
 		client->base.release = releaseProcessMessageReceivedCallBack;

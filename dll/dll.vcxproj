@@ -132,7 +132,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)dependencies\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <LanguageStandard>stdcpp17</LanguageStandard>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -151,15 +151,20 @@
     <ClCompile Include="src\devtools\DevToolsClient.cpp" />
     <ClCompile Include="src\devtools\DevToolsLifeSpanHandler.cpp" />
     <ClCompile Include="src\dllmain.cpp" />
+    <ClCompile Include="src\filter\filter.cpp" />
+    <ClCompile Include="src\filter\IndexPageFilter.cpp" />
     <ClCompile Include="src\renderer\NativeV8Handler.cpp" />
     <ClCompile Include="src\renderer\renderer.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\assets\assets.h" />
     <ClInclude Include="src\browser\browser.h" />
     <ClInclude Include="src\d3d9\d3d9.h" />
     <ClInclude Include="src\devtools\devtools.h" />
     <ClInclude Include="src\devtools\DevToolsClient.h" />
     <ClInclude Include="src\devtools\DevToolsLifeSpanHandler.h" />
+    <ClInclude Include="src\filter\filter.h" />
+    <ClInclude Include="src\filter\IndexPageFilter.h" />
     <ClInclude Include="src\proxy.h" />
     <ClInclude Include="src\renderer\NativeV8Handler.h" />
     <ClInclude Include="src\renderer\renderer.h" />

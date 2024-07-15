@@ -1,3 +1,5 @@
+#pragma once
+
 #include "include/capi/cef_client_capi.h"
 
 struct DevToolsClient {
@@ -5,7 +7,6 @@ struct DevToolsClient {
 
 	int count = 0;
 
-	int parent;
-
 	DevToolsClient(int parent);
+	~DevToolsClient();
 };

@@ -25,6 +25,12 @@
     <Filter Include="Source Files\devtools">
       <UniqueIdentifier>{ab966564-806f-42e9-8710-ed06295b0336}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\filter">
+      <UniqueIdentifier>{fcfbcd77-7310-419a-ba18-aac4ced92c80}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\assets">
+      <UniqueIdentifier>{6c511c45-4f83-4b11-bc11-01f6471cbbd6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\dllmain.cpp">
@@ -51,6 +57,12 @@
     <ClCompile Include="src\devtools\devtools.cpp">
       <Filter>Source Files\devtools</Filter>
     </ClCompile>
+    <ClCompile Include="src\filter\filter.cpp">
+      <Filter>Source Files\filter</Filter>
+    </ClCompile>
+    <ClCompile Include="src\filter\IndexPageFilter.cpp">
+      <Filter>Source Files\filter</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\proxy.h">
@@ -76,6 +88,15 @@
     </ClInclude>
     <ClInclude Include="src\devtools\DevToolsLifeSpanHandler.h">
       <Filter>Source Files\devtools</Filter>
+    </ClInclude>
+    <ClInclude Include="src\filter\filter.h">
+      <Filter>Source Files\filter</Filter>
+    </ClInclude>
+    <ClInclude Include="src\filter\IndexPageFilter.h">
+      <Filter>Source Files\filter</Filter>
+    </ClInclude>
+    <ClInclude Include="src\assets\assets.h">
+      <Filter>Source Files\assets</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

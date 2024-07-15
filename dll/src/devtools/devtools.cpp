@@ -1,7 +1,6 @@
 #include "devtools.h"
 
 #include "DevToolsClient.h"
-//#include "DevToolsClient.h"
 
 void openDevTools(cef_browser_t* browser) {
 
@@ -22,10 +21,11 @@ void openDevTools(cef_browser_t* browser) {
     client->client.base.add_ref(&client->client.base);
 
     auto host = browser->get_host(browser);
-    //host->base.add_ref(&host->base);
+    host->base.add_ref(&host->base);
 
 	host->show_dev_tools(host, &windowInfo, (_cef_client_t*)client, &settings, nullptr);
 
-    //client->client.base.release(&client->client.base);
-    //host->base.release(&host->base);
+    host->base.release(&host->base);
+    client->client.base.release(&client->client.base);
+
 }
