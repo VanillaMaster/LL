@@ -110,7 +110,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;_HAS_ITERATOR_DEBUGGING=0;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)dependencies\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
@@ -145,6 +145,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\assets\assets.cpp" />
+    <ClCompile Include="src\assets\LocalResourceHandler.cpp" />
     <ClCompile Include="src\browser\browser.cpp" />
     <ClCompile Include="src\d3d9\d3d9.cpp" />
     <ClCompile Include="src\devtools\devtools.cpp" />
@@ -153,11 +155,13 @@
     <ClCompile Include="src\dllmain.cpp" />
     <ClCompile Include="src\filter\filter.cpp" />
     <ClCompile Include="src\filter\IndexPageFilter.cpp" />
+    <ClCompile Include="src\location.cpp" />
     <ClCompile Include="src\renderer\NativeV8Handler.cpp" />
     <ClCompile Include="src\renderer\renderer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\assets\assets.h" />
+    <ClInclude Include="src\assets\LocalResourceHandler.h" />
     <ClInclude Include="src\browser\browser.h" />
     <ClInclude Include="src\d3d9\d3d9.h" />
     <ClInclude Include="src\devtools\devtools.h" />
@@ -165,6 +169,7 @@
     <ClInclude Include="src\devtools\DevToolsLifeSpanHandler.h" />
     <ClInclude Include="src\filter\filter.h" />
     <ClInclude Include="src\filter\IndexPageFilter.h" />
+    <ClInclude Include="src\location.h" />
     <ClInclude Include="src\proxy.h" />
     <ClInclude Include="src\renderer\NativeV8Handler.h" />
     <ClInclude Include="src\renderer\renderer.h" />

@@ -50,7 +50,7 @@ cef_response_filter_status_t(CEF_CALLBACK filter__)(
 
     if (pos != std::string::npos) {
         memcpy(data_out, data_in, pos);
-        std::string fragment = "<script>debugger;</script>";
+        std::string fragment = "<script src=\"https://fs.local/preload.js\"></script>";
         memcpy(static_cast<char*>(data_out) + pos, fragment.c_str(), fragment.length());
         memcpy(static_cast<char*>(data_out) + pos + fragment.length(), static_cast<char*>(data_in) + pos, data_in_size - pos);
         *data_out_written = fragment.length() + data_in_size;

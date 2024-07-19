@@ -71,10 +71,10 @@ void(CEF_CALLBACK on_context_created)(
         auto obj = cef_v8value_create_object(NULL, NULL);
         obj->base.add_ref(&obj->base);
 
-        cef_string_utf16_t native_text{};
-        cef_string_from_utf8("__native", 8, &native_text);
-        cef_string_t native_key(native_text);
-        window->set_value_bykey(window, &native_key, obj, V8_PROPERTY_ATTRIBUTE_READONLY);
+        cef_string_t key{};
+        cef_string_from_utf8("__native", 8, &key);
+
+        window->set_value_bykey(window, &key, obj, V8_PROPERTY_ATTRIBUTE_READONLY);
 
         {
             cef_string_utf16_t devtools_text {};
@@ -95,12 +95,14 @@ void(CEF_CALLBACK on_context_created)(
 
         obj->base.release(&obj->base);
         window->base.release(&window->base);
+        cef_string_clear(&key);
 
-        cef_string_utf16_t text {};
-        cef_string_from_utf8("window.addEventListener('keydown', function(e) {if (e.code == 'F12') __native.openDevTools();});", 96, &text);
-        cef_string_t script(text);
-
+        /*
+        cef_string_t script{};
+        cef_string_from_utf8("window.addEventListener('keydown', function(e) {if (e.code == 'F12') __native.openDevTools();});", 96, &script);
         frame->execute_java_script(frame, &script, nullptr, 1);
+        cef_string_clear(&script);
+        */
     }
 
     log.close();

@@ -9,6 +9,8 @@
 
 #include "../filter/filter.h"
 
+#include "../assets/assets.h";
+
 #include "include/capi/cef_app_capi.h"
 #include "include/capi/cef_client_capi.h"
 #include "include/capi/cef_browser_capi.h"
@@ -66,11 +68,13 @@ int(CEF_CALLBACK releaseProcessMessageReceivedCallBack)(struct _cef_base_ref_cou
 void(CEF_CALLBACK on_context_initialized)(struct _cef_browser_process_handler_t* self) {
 	std::wofstream log("D:/log/browser.log", std::ios_base::app | std::ios_base::out);
 	log << L"on_context_initialized" << L"\n";
+	log.close();
+
+	RegisterAssetsSchemeHandlerFactory();
 
 	auto [callBack, _] = contextInitializedCallBacks[self];
 	callBack(self);
 
-	log.close();
 }
 
 struct _cef_browser_process_handler_t* (CEF_CALLBACK get_browser_process_handler)(struct _cef_app_t* self) {
@@ -156,7 +160,7 @@ int cef_browser_host_create_browser(
 
 	log.close();
 
-	return cefBrowserHostCreateBrowser.call(windowInfo, client, url, settings, extra_info, request_context);
+	return cefBrowserHostCreateBrowser.call(windowInfo, client, url, settings, extra_info, nullptr);
 }
 
 bool hookOnBrowser() {

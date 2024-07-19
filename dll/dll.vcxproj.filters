@@ -63,6 +63,15 @@
     <ClCompile Include="src\filter\IndexPageFilter.cpp">
       <Filter>Source Files\filter</Filter>
     </ClCompile>
+    <ClCompile Include="src\assets\assets.cpp">
+      <Filter>Source Files\assets</Filter>
+    </ClCompile>
+    <ClCompile Include="src\assets\LocalResourceHandler.cpp">
+      <Filter>Source Files\assets</Filter>
+    </ClCompile>
+    <ClCompile Include="src\location.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\proxy.h">
@@ -97,6 +106,12 @@
     </ClInclude>
     <ClInclude Include="src\assets\assets.h">
       <Filter>Source Files\assets</Filter>
+    </ClInclude>
+    <ClInclude Include="src\assets\LocalResourceHandler.h">
+      <Filter>Source Files\assets</Filter>
+    </ClInclude>
+    <ClInclude Include="src\location.h">
+      <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

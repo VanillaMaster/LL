@@ -8,6 +8,8 @@
 #include <ios>
 #include <fstream>
 
+#include "location.h"
+
 bool endswith(const std::wstring& source, const std::wstring& suffix) {
 	return source.compare(source.length() - suffix.length(), suffix.length(), suffix) == 0;
 }
@@ -17,16 +19,12 @@ void init(HMODULE hModule) {
 	int length = GetModuleFileNameW(nullptr, pathBuffer, MAX_PATH);
 	std::wstring path(pathBuffer, length);
 
-	/*
+	
 	WCHAR locationBuffer[MAX_PATH]{};
 	length = GetModuleFileNameW(hModule, locationBuffer, MAX_PATH);
 	std::wstring location(locationBuffer, length);
-
-	std::wofstream log("D:/log/dll.log", std::ios_base::app | std::ios_base::out);
-
-	log << L"path: " << path << L"\n" << L"location: " << location << L"\n";
-	log.close();
-	*/
+	setLocation(location);
+	
 
 	if (endswith(path, L"LeagueClientUx.exe")) {
 		if (hookOnBrowser()) {

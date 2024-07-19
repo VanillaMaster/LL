@@ -1,16 +1,19 @@
+#pragma once
+
+#include <filesystem>
+
 #include "include/capi/cef_parser_capi.h"
 #include "include/capi/cef_scheme_capi.h"
-#include "include/capi/cef_stream_capi.h"
-#include "include/capi/cef_resource_handler_capi.h"
 
 struct AssetsSchemeHandlerFactory {
 
 	cef_scheme_handler_factory_t factory{};
-	
+
+	std::filesystem::path root {};
+
 	int count = 0;
 
-	AssetsSchemeHandlerFactory() {
-		factory.base.size = sizeof(AssetsSchemeHandlerFactory);
-
-	}
+	AssetsSchemeHandlerFactory(std::filesystem::path root);
 };
+
+void RegisterAssetsSchemeHandlerFactory();
