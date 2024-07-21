@@ -3,6 +3,7 @@
 
 #include "renderer.h"
 #include "../proxy.h"
+#include "../utils/cef.h"
 #include "NativeV8Handler.h"
 
 #include "include/capi/cef_parser_capi.h"
@@ -54,6 +55,8 @@ void(CEF_CALLBACK on_context_created)(
 
     std::wstring host(parts.host.str, parts.host.length);
     std::wstring path(parts.path.str, parts.path.length);
+
+    cef_urlparts_clear(&parts);
 
     std::wofstream log("D:/log/renderer.log", std::ios_base::app | std::ios_base::out);
 

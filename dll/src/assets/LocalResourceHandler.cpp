@@ -61,7 +61,7 @@ void(CEF_CALLBACK get_response_headers)(
     response->set_error(response, ERR_NONE);
 
     cef_string_t ext{};
-    cef_string_from_ascii(".bin", 4, &ext);
+    cef_string_from_ascii("bin", 3, &ext);
 
     for (size_t i = self->file.length; i-- > 0;) {
         const auto c = self->file.str[i];
@@ -77,7 +77,7 @@ void(CEF_CALLBACK get_response_headers)(
         cef_string_userfree_free(mime);
     } else {
         cef_string_t default_mime{};
-        cef_string_from_ascii("text/plain", 10, &default_mime);
+        cef_string_from_ascii("application/octet-stream", 24, &default_mime);
         response->set_mime_type(response, &default_mime);
         cef_string_clear(&default_mime);
     }
@@ -143,9 +143,8 @@ void(CEF_CALLBACK cancel)(struct LocalResourceHandler self) {
 
 }
 
-LocalResourceHandler::LocalResourceHandler(std::wstring src) {
-
-    cef_string_from_wide(src.data(), src.length(), &this->file);
+LocalResourceHandler::LocalResourceHandler(const cef_string_t& src) {
+    cef_string_copy(src.str, src.length, &this->file);
     
     this->handler.base.size = sizeof(LocalResourceHandler);
     this->handler.base.add_ref = (decltype(cef_base_ref_counted_t::add_ref))&add_ref;

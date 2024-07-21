@@ -155,9 +155,11 @@
     <ClCompile Include="src\dllmain.cpp" />
     <ClCompile Include="src\filter\filter.cpp" />
     <ClCompile Include="src\filter\IndexPageFilter.cpp" />
+    <ClCompile Include="src\filter\IndexPageState.cpp" />
     <ClCompile Include="src\location.cpp" />
     <ClCompile Include="src\renderer\NativeV8Handler.cpp" />
     <ClCompile Include="src\renderer\renderer.cpp" />
+    <ClCompile Include="src\utils\cef.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\assets\assets.h" />
@@ -169,10 +171,12 @@
     <ClInclude Include="src\devtools\DevToolsLifeSpanHandler.h" />
     <ClInclude Include="src\filter\filter.h" />
     <ClInclude Include="src\filter\IndexPageFilter.h" />
+    <ClInclude Include="src\filter\IndexPageState.h" />
     <ClInclude Include="src\location.h" />
     <ClInclude Include="src\proxy.h" />
     <ClInclude Include="src\renderer\NativeV8Handler.h" />
     <ClInclude Include="src\renderer\renderer.h" />
+    <ClInclude Include="src\utils\cef.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="res\Source.def" />

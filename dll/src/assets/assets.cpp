@@ -3,6 +3,10 @@
 
 #include "../location.h"
 
+#include "../utils/cef.h"
+
+#include <type_traits>
+
 #include <ios>
 #include <fstream>
 
@@ -41,26 +45,30 @@ struct _cef_resource_handler_t* (CEF_CALLBACK create)(
         
     if (is_not_get) return NULL;
 
-    auto _url = request->get_url(request);
+    auto url = request->get_url(request);
     cef_urlparts_t parts{};
-    cef_parse_url(_url, &parts);
-    cef_string_userfree_free(_url);
+    cef_parse_url(url, &parts);
+    cef_string_userfree_free(url);
 
-    std::filesystem::path location = self->root;
-    std::wstring path(parts.path.str, parts.path.length);
-    location += path;
+    cef_string_t location{};
+    cef_string_concat(&self->root, &parts.path, &location);
+    cef_urlparts_clear(&parts);
 
     std::wofstream log("D:/log/fs.log", std::ios_base::app | std::ios_base::out);
-    log << L"[create]" << location.wstring() << L"\n";
+    std::wstring loc(location.str, location.length);
+    log << L"[create]" << loc << L"\n";
     log.close();
-
+    
     auto handler = new LocalResourceHandler(location);
     handler->handler.base.add_ref(&handler->handler.base);
+
+    cef_string_clear(&location);
+
     return (_cef_resource_handler_t*)handler;
 }
 
-AssetsSchemeHandlerFactory::AssetsSchemeHandlerFactory(std::filesystem::path root) {
-    this->root = root;
+AssetsSchemeHandlerFactory::AssetsSchemeHandlerFactory(const cef_string_t& root) {
+    cef_string_copy(root.str, root.length, &this->root);
 
     this->factory.base.size = sizeof(AssetsSchemeHandlerFactory);
     this->factory.base.add_ref = (decltype(cef_base_ref_counted_t::add_ref))&add_ref;
@@ -83,7 +91,10 @@ void RegisterAssetsSchemeHandlerFactory() {
     cef_string_t domain_name{};
     cef_string_from_utf8("fs.local", 8, &domain_name);
 
-    auto factory = new AssetsSchemeHandlerFactory(L"D:/log");
+    cef_string_t root{};
+    cef_string_from_ascii("D:/log", 6, &root);
+
+    auto factory = new AssetsSchemeHandlerFactory(root);
     factory->factory.base.add_ref(&factory->factory.base);
 
     auto code = cef_register_scheme_handler_factory(&scheme_name, &domain_name, (cef_scheme_handler_factory_t*)factory);
@@ -96,4 +107,5 @@ void RegisterAssetsSchemeHandlerFactory() {
 
     cef_string_clear(&scheme_name);
     cef_string_clear(&domain_name);
+    cef_string_clear(&root);
 }

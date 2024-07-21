@@ -2,6 +2,8 @@
 
 #include "IndexPageFilter.h"
 
+#include "../utils/cef.h"
+
 #include "include/capi/cef_app_capi.h"
 #include "include/capi/cef_client_capi.h"
 #include "include/capi/cef_browser_capi.h"
@@ -83,8 +85,11 @@ struct _cef_response_filter_t* (CEF_CALLBACK get_resource_response_filter)(
     cef_parse_url(_url, &parts);
     cef_string_userfree_free(_url);
 
+
     std::wstring host(parts.host.str, parts.host.length);
     std::wstring path(parts.path.str, parts.path.length);
+
+    cef_urlparts_clear(&parts);
 
     auto [getHandler, _] = resourceResponseFilters[self];
     auto handler = getHandler(self, browser, frame, request, response);

@@ -22,8 +22,11 @@ int(CEF_CALLBACK init_filter)(struct IndexPageFilter* self) {
     return true;
 };
 
+static const char* fragment = "src=\"https://fs.local/preload.js\"></script><script ";
+static const int fragment_length = 51;
+
 cef_response_filter_status_t(CEF_CALLBACK filter__)(
-    struct response_filter* self,
+    struct IndexPageFilter* self,
     void* data_in,
     size_t data_in_size,
     size_t* data_in_read,
@@ -31,39 +34,28 @@ cef_response_filter_status_t(CEF_CALLBACK filter__)(
     size_t data_out_size,
     size_t* data_out_written
 ) {
-    //TODO: rebuild this shit properly
-    size_t pos = std::string::npos;
-    {
-        const char* data_in_ptr = static_cast<char*>(data_in);
-        std::string src(data_in_ptr, data_in_size);
-        const size_t sp = src.find("<script");
-        const size_t hp = src.find("</head");
+    while (*data_in_read < data_in_size && *data_out_written < data_out_size) {
+        switch (self->filter_state) {
+            case FILTER_STATE_SEARCH:
+                self->search_state = consume(((char*)data_in)[*data_in_read], self->search_state);
+                ((char*)data_out)[(*data_out_written)++] = ((char*)data_in)[(*data_in_read)++];
 
-        if (sp != std::string::npos && hp != std::string::npos) {
-            pos = sp > hp ? hp : sp;
-        } else if (sp != std::string::npos) {
-            pos = sp;
-        } else if (hp != std::string::npos) {
-            pos = hp;
+                if (self->search_state == SEARCH_STATE_DONE) self->filter_state = FILTER_STATE_COPY;
+                if (self->search_state == SEARCH_STATE_ERROR) self->filter_state = FILTER_STATE_FLUSH;
+                break;
+            case FILTER_STATE_COPY:
+                ((char*)data_out)[(*data_out_written)++] = fragment[(self->offset)++];
+                if (self->offset >= fragment_length) self->filter_state = FILTER_STATE_FLUSH;
+                break;
+            case FILTER_STATE_FLUSH:
+                ((char*)data_out)[(*data_out_written)++] = ((char*)data_in)[(*data_in_read)++];
+                break;
         }
+
+        
     }
-
-    if (pos != std::string::npos) {
-        memcpy(data_out, data_in, pos);
-        std::string fragment = "<script src=\"https://fs.local/preload.js\"></script>";
-        memcpy(static_cast<char*>(data_out) + pos, fragment.c_str(), fragment.length());
-        memcpy(static_cast<char*>(data_out) + pos + fragment.length(), static_cast<char*>(data_in) + pos, data_in_size - pos);
-        *data_out_written = fragment.length() + data_in_size;
-
-        *data_in_read = data_in_size;
-    } else {
-        *data_out_written = data_in_size < data_out_size ? data_in_size : data_out_size;
-        if (*data_out_written > 0) {
-            memcpy(data_out, data_in, *data_out_written);
-            *data_in_read = *data_out_written;
-        }
-    }
-
+    if (self->filter_state == FILTER_STATE_COPY) return RESPONSE_FILTER_NEED_MORE_DATA;
+    if (*data_in_read != data_in_size) return RESPONSE_FILTER_NEED_MORE_DATA;
     return RESPONSE_FILTER_DONE;
 };
 

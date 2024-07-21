@@ -9,7 +9,9 @@
 
 #include "../filter/filter.h"
 
-#include "../assets/assets.h";
+#include "../assets/assets.h"
+
+#include "../utils/cef.h"
 
 #include "include/capi/cef_app_capi.h"
 #include "include/capi/cef_client_capi.h"
@@ -143,6 +145,8 @@ int cef_browser_host_create_browser(
 
 	std::wstring host(parts.host.str, parts.host.length);
 	std::wstring path(parts.path.str, parts.path.length);
+
+	cef_urlparts_clear(&parts);
 
 	std::wofstream log("D:/log/browser.log", std::ios_base::app | std::ios_base::out);
 	
