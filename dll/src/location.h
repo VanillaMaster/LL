@@ -1,7 +1,7 @@
 #pragma once
 
-#include <filesystem>
+#include <string>
 
-void setLocation(std::filesystem::path location);
+void setLocation(const std::wstring& location);
 
-std::filesystem::path getLocation();
+const std::wstring& getLocation();

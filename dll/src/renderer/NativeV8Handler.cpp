@@ -33,11 +33,11 @@ int(CEF_CALLBACK execute)(
     auto context = cef_v8context_get_current_context();
     auto frame = context->get_frame(context);
 
-    cef_string_utf16_t msg_text {};
-    cef_string_from_utf8("__devtools__", 12, &msg_text);
-    cef_string_t msg_name(msg_text);
+    cef_string_t msg_name{};
+    cef_string_from_ascii("__devtools__", 12, &msg_name);
     auto msg = cef_process_message_create(&msg_name);
     frame->send_process_message(frame, PID_BROWSER, msg);
+    cef_string_clear(&msg_name);
     
 
     std::wcout << L"openDevTools" << L"\n";

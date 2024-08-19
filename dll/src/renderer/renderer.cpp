@@ -137,10 +137,7 @@ int cef_execute_process(const cef_main_args_t* args, cef_app_t* app, void* windo
     return CefExecuteProcess.call(args, app, windows_sandbox_info);
 }
 
-bool hookOnRenderer() {
-
-    HMODULE libcef = GetModuleHandleA("libcef.dll");
-    if (libcef == NULL) return true;
+bool hookOnRenderer(HMODULE libcef) {
     FARPROC __cef_execute_process = GetProcAddress(libcef, "cef_execute_process");
     if (__cef_execute_process == NULL) return true;
     return CefExecuteProcess.attach(__cef_execute_process, &cef_execute_process);

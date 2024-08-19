@@ -1,2 +1,3 @@
+#include <windows.h>
 
-bool hookOnBrowser();
+bool hookOnBrowser(HMODULE libcef);

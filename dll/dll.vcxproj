@@ -129,10 +129,11 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)dependencies\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -157,6 +158,8 @@
     <ClCompile Include="src\filter\IndexPageFilter.cpp" />
     <ClCompile Include="src\filter\IndexPageState.cpp" />
     <ClCompile Include="src\location.cpp" />
+    <ClCompile Include="src\module\ModuleResolverSchemeHandlerFactory.cpp" />
+    <ClCompile Include="src\module\resolver.cpp" />
     <ClCompile Include="src\renderer\NativeV8Handler.cpp" />
     <ClCompile Include="src\renderer\renderer.cpp" />
     <ClCompile Include="src\utils\cef.cpp" />
@@ -173,6 +176,8 @@
     <ClInclude Include="src\filter\IndexPageFilter.h" />
     <ClInclude Include="src\filter\IndexPageState.h" />
     <ClInclude Include="src\location.h" />
+    <ClInclude Include="src\module\ModuleResolverSchemeHandlerFactory.h" />
+    <ClInclude Include="src\module\resolver.h" />
     <ClInclude Include="src\proxy.h" />
     <ClInclude Include="src\renderer\NativeV8Handler.h" />
     <ClInclude Include="src\renderer\renderer.h" />

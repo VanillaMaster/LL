@@ -10,6 +10,7 @@
 #include "../filter/filter.h"
 
 #include "../assets/assets.h"
+#include "../module/resolver.h"
 
 #include "../utils/cef.h"
 
@@ -73,6 +74,7 @@ void(CEF_CALLBACK on_context_initialized)(struct _cef_browser_process_handler_t*
 	log.close();
 
 	RegisterAssetsSchemeHandlerFactory();
+	RegisterModuleResolverSchemeHandlerFactory();
 
 	auto [callBack, _] = contextInitializedCallBacks[self];
 	callBack(self);
@@ -167,9 +169,7 @@ int cef_browser_host_create_browser(
 	return cefBrowserHostCreateBrowser.call(windowInfo, client, url, settings, extra_info, nullptr);
 }
 
-bool hookOnBrowser() {
-	HMODULE libcef = GetModuleHandleA("libcef.dll");
-	if (libcef == NULL) return true;
+bool hookOnBrowser(HMODULE libcef) {
 	FARPROC __cef_initialize = GetProcAddress(libcef, "cef_initialize");
 	if (__cef_initialize == NULL) return true;
 	FARPROC __cef_browser_host_create_browser = GetProcAddress(libcef, "cef_browser_host_create_browser");

@@ -1,2 +1,3 @@
+#include <windows.h>
 
-bool hookOnRenderer();
+bool hookOnRenderer(HMODULE libcef);

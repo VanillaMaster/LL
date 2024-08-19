@@ -65,6 +65,7 @@ void(CEF_CALLBACK get_response_headers)(
 
     for (size_t i = self->file.length; i-- > 0;) {
         const auto c = self->file.str[i];
+        if (c == L'/') break;
         if (c == L'.') {
             auto const j = i + 1;
             if (j < self->file.length) cef_string_copy(self->file.str + j, self->file.length - j, &ext);

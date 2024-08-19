@@ -5,8 +5,6 @@
 
 #include "../utils/cef.h"
 
-#include <type_traits>
-
 #include <ios>
 #include <fstream>
 
@@ -48,6 +46,9 @@ struct _cef_resource_handler_t* (CEF_CALLBACK create)(
     auto url = request->get_url(request);
     cef_urlparts_t parts{};
     cef_parse_url(url, &parts);
+    
+    std::wstring _url(url->str, url->length);
+
     cef_string_userfree_free(url);
 
     cef_string_t location{};
@@ -56,7 +57,7 @@ struct _cef_resource_handler_t* (CEF_CALLBACK create)(
 
     std::wofstream log("D:/log/fs.log", std::ios_base::app | std::ios_base::out);
     std::wstring loc(location.str, location.length);
-    log << L"[create]" << loc << L"\n";
+    log << L"[create]" << loc << L":" << _url << L"\n";
     log.close();
     
     auto handler = new LocalResourceHandler(location);
@@ -76,7 +77,7 @@ AssetsSchemeHandlerFactory::AssetsSchemeHandlerFactory(const cef_string_t& root)
     this->factory.base.has_one_ref = (decltype(cef_base_ref_counted_t::has_one_ref))&has_one_ref;
     this->factory.base.has_at_least_one_ref = (decltype(cef_base_ref_counted_t::has_at_least_one_ref))&has_at_least_one_ref;
 
-    this->factory.create = (decltype(_cef_scheme_handler_factory_t::create))&create;
+    this->factory.create = (decltype(cef_scheme_handler_factory_t::create))&create;
 
     std::wofstream log("D:/log/alloc.log", std::ios_base::app | std::ios_base::out);
     log << L"[allocated]: " << L"AssetsSchemeHandlerFactory(" << std::to_wstring((uintptr_t)this) << L")\n";
@@ -86,13 +87,14 @@ AssetsSchemeHandlerFactory::AssetsSchemeHandlerFactory(const cef_string_t& root)
 
 void RegisterAssetsSchemeHandlerFactory() {
     cef_string_t scheme_name{};
-    cef_string_from_utf8("https", 5, &scheme_name);
+    cef_string_from_ascii("https", 5, &scheme_name);
 
     cef_string_t domain_name{};
-    cef_string_from_utf8("fs.local", 8, &domain_name);
+    cef_string_from_ascii("fs.local", 8, &domain_name);
 
     cef_string_t root{};
-    cef_string_from_ascii("D:/log", 6, &root);
+    auto const location = getLocation();
+    cef_string_from_wide(location.data(), location.length(), &root);
 
     auto factory = new AssetsSchemeHandlerFactory(root);
     factory->factory.base.add_ref(&factory->factory.base);

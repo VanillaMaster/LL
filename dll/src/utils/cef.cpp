@@ -1,5 +1,7 @@
 #include "cef.h"
 
+#include <type_traits>
+
 void string_dtor(decltype(cef_string_t::str) str) {
     delete[] str;
 }
@@ -27,4 +29,9 @@ void cef_urlparts_clear(cef_urlparts_t* parts) {
     cef_string_clear(&parts->path);
     cef_string_clear(&parts->query);
     cef_string_clear(&parts->fragment);
+}
+
+void cef_urlparts_free(cef_urlparts_t* parts) {
+    cef_urlparts_clear(parts);
+    delete parts;
 }

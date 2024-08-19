@@ -1,22 +1,21 @@
 #include "location.h"
+
 #include <filesystem>
 
-namespace fs = std::filesystem;
+static std::wstring ref{};
+static std::wstring location{};
 
-static fs::path ref{};
-static fs::path location{};
-
-void setLocation(fs::path location) {
+void setLocation(const std::wstring& location) {
 	ref = location;
 }
 
-fs::path getLocation() {
+const std::wstring& getLocation() {
 	if (!location.empty()) return location;
 	
-	if (fs::is_symlink(ref)) {
-		location = fs::read_symlink(ref);
+	if (std::filesystem::is_symlink(ref)) {
+		location = std::filesystem::read_symlink(ref).parent_path();
 	} else {
-		location = ref;
+		location = std::filesystem::path(ref).parent_path();
 	}
 
 	return location;
