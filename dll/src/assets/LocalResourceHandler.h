@@ -1,18 +1,44 @@
 #pragma once
+#include "include/cef_resource_handler.h"
 
-#include "include/capi/cef_stream_capi.h"
-#include "include/capi/cef_resource_handler_capi.h"
+class LocalResourceHandler : public CefResourceHandler {
+public:
+    LocalResourceHandler(const std::wstring& root);
 
-struct LocalResourceHandler {
+    bool Open(
+        CefRefPtr<CefRequest> request,
+        bool& handle_request,
+        CefRefPtr<CefCallback> callback
+    ) override;
 
-	cef_resource_handler_t handler{};
+    void GetResponseHeaders(
+        CefRefPtr<CefResponse> response,
+        int64& response_length,
+        CefString& redirectUrl
+    ) override;
 
-	cef_string_t file{};
+    bool Skip(
+        int64 bytes_to_skip,
+        int64& bytes_skipped,
+        CefRefPtr<CefResourceSkipCallback> callback
+    ) override;
 
-	cef_stream_reader_t* reader = nullptr;
+    bool Read(
+        void* data_out,
+        int bytes_to_read,
+        int& bytes_read,
+        CefRefPtr<CefResourceReadCallback> callback
+    ) override;
 
-	int count = 0;
+    void Cancel() override;
 
-	LocalResourceHandler(const cef_string_t& src);
+private:
+    CefRefPtr<CefStreamReader> reader = NULL;
+    CefString mime{};
 
+    std::wstring root{};
+    int status = 500;
+
+    IMPLEMENT_REFCOUNTING(LocalResourceHandler);
+    DISALLOW_COPY_AND_ASSIGN(LocalResourceHandler);
 };

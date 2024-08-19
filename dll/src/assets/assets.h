@@ -1,17 +1,22 @@
 #pragma once
+#include "include/cef_scheme.h"
 
-#include "include/capi/cef_parser_capi.h"
-#include "include/capi/cef_scheme_capi.h"
+class AssetsSchemeHandlerFactory : public CefSchemeHandlerFactory {
+public:
+    AssetsSchemeHandlerFactory(const std::wstring& root);
 
-struct AssetsSchemeHandlerFactory {
+    CefRefPtr<CefResourceHandler> Create(
+        CefRefPtr<CefBrowser> browser,
+        CefRefPtr<CefFrame> frame,
+        const CefString& scheme_name,
+        CefRefPtr<CefRequest> request
+    ) override;
 
-	cef_scheme_handler_factory_t factory{};
+private:
+    std::wstring root{};
 
-	cef_string_t root{};
-
-	int count = 0;
-
-	AssetsSchemeHandlerFactory(const cef_string_t& root);
+    IMPLEMENT_REFCOUNTING(AssetsSchemeHandlerFactory);
+    DISALLOW_COPY_AND_ASSIGN(AssetsSchemeHandlerFactory);
 };
 
 void RegisterAssetsSchemeHandlerFactory();

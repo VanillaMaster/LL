@@ -1,165 +1,100 @@
 #include "LocalResourceHandler.h"
+#include "include/cef_parser.h"
 
-#include "include/capi/cef_resource_handler_capi.h"
-#include "include/capi/cef_scheme_capi.h"
-
-#include "include/capi/cef_parser_capi.h"
-
-#include <ios>
-#include <fstream>
-
-void(CEF_CALLBACK add_ref)(struct LocalResourceHandler* self) {
-    self->count += 1;
-}
-
-int(CEF_CALLBACK release)(struct LocalResourceHandler* self) {
-    if (--(self->count) != 0) return false;
-    std::wofstream log("D:/log/alloc.log", std::ios_base::app | std::ios_base::out);
-    log << L"[freed]: " << L"LocalResourceHandler(" << std::to_wstring((uintptr_t)self) << L")\n";
-    log.close();
-    cef_string_clear(&self->file);
-    if (self->reader != NULL) self->reader->base.release(&self->reader->base);
-    delete self;
-    return true;
-}
-
-int(CEF_CALLBACK has_one_ref)(struct LocalResourceHandler* self) {
-    return self->count == 1;
-}
-
-int(CEF_CALLBACK has_at_least_one_ref)(struct LocalResourceHandler* self) {
-    return self->count > 0;
-}
-
-void(CEF_CALLBACK get_response_headers)(
-    struct LocalResourceHandler* self,
-    struct _cef_response_t* response,
-    int64* response_length,
-    cef_string_t* redirectUrl
-) {
-    cef_string_t cors_key{};
-    cef_string_t cors_value{};
-
-    cef_string_from_ascii("Access-Control-Allow-Origin", 27, &cors_key);
-    cef_string_from_ascii("*", 1, &cors_value);
-
-    response->set_header_by_name(response, &cors_key, &cors_value, 0);
-
-    cef_string_clear(&cors_key);
-    cef_string_clear(&cors_value);
-
-    if (self->reader == NULL) {
-        *response_length = 0;
-        response->set_status(response, 404);
-        response->set_error(response, ERR_NONE);
-        return;
+std::wstring GetMimeType(const std::wstring& resource_path) {
+    std::wstring mime_type;
+    size_t sep = resource_path.find_last_of(L"./");
+    if (sep != std::string::npos && resource_path[sep] != L'/') {
+        mime_type = CefGetMimeType(resource_path.substr(sep + 1));
+        if (!mime_type.empty())
+            return mime_type;
     }
+    return L"application/octet-stream";
+}
 
-    *response_length = -1;
+LocalResourceHandler::LocalResourceHandler(const std::wstring& root) {
+    this->root = root;
+}
 
-    response->set_status(response, 200);
-    response->set_error(response, ERR_NONE);
+bool LocalResourceHandler::Open(
+    CefRefPtr<CefRequest> request,
+    bool& handle_request,
+    CefRefPtr<CefCallback> callback
+) {
+    handle_request = true;
 
-    cef_string_t ext{};
-    cef_string_from_ascii("bin", 3, &ext);
+    auto method = request->GetMethod();
+    if (method == "GET") {
+        CefURLParts parts{};
+        CefParseURL(request->GetURL(), parts);
+        std::wstring path(parts.path.str, parts.path.length);
+        std::wstring location = this->root + path;
 
-    for (size_t i = self->file.length; i-- > 0;) {
-        const auto c = self->file.str[i];
-        if (c == L'/') break;
-        if (c == L'.') {
-            auto const j = i + 1;
-            if (j < self->file.length) cef_string_copy(self->file.str + j, self->file.length - j, &ext);
-            break;
+        this->reader = CefStreamReader::CreateForFile(location);
+        if (this->reader != NULL) {
+            this->status = 200;
+            this->mime = GetMimeType(location);
+        } else {
+            this->status = 404;
         }
-    }
-
-    if (auto mime = cef_get_mime_type(&ext); mime != NULL) {
-        response->set_mime_type(response, mime);
-        cef_string_userfree_free(mime);
     } else {
-        cef_string_t default_mime{};
-        cef_string_from_ascii("application/octet-stream", 24, &default_mime);
-        response->set_mime_type(response, &default_mime);
-        cef_string_clear(&default_mime);
+        this->status = 405;
     }
-
-    cef_string_clear(&ext);
-    
-}
-
-int(CEF_CALLBACK open)(
-    struct LocalResourceHandler* self,
-    struct _cef_request_t* request,
-    int* handle_request,
-    struct _cef_callback_t* callback
-) {
-    *handle_request = 1;
-
-    self->reader = cef_stream_reader_create_for_file(&self->file);
-    if (self->reader != NULL) self->reader->base.add_ref(&self->reader->base);
 
     return true;
 }
 
-int(CEF_CALLBACK skip)(
-    struct LocalResourceHandler* self,
-    int64 bytes_to_skip,
-    int64* bytes_skipped,
-    struct _cef_resource_skip_callback_t* callback
+void LocalResourceHandler::GetResponseHeaders(
+    CefRefPtr<CefResponse> response,
+    int64& response_length,
+    CefString& redirectUrl
 ) {
+    response->SetHeaderByName("Access-Control-Allow-Origin", "*", true);
+    response->SetStatus(this->status);
 
-    auto const code = self->reader->seek(self->reader, bytes_to_skip, SEEK_CUR);
+    if (this->status == 200) {
+        response->SetMimeType(this->mime);
+        response_length = -1;
+    } else {
+        response_length = 0;
+    }
+}
+
+bool LocalResourceHandler::Skip(
+    int64 bytes_to_skip,
+    int64& bytes_skipped,
+    CefRefPtr<CefResourceSkipCallback> callback
+) {
+    auto const code = this->reader->Seek(bytes_to_skip, SEEK_CUR);
 
     if (code != 0) {
-        *bytes_skipped = -2;
+        bytes_skipped = -2;
         return false;
     }
 
-    *bytes_skipped = bytes_to_skip;
+    bytes_skipped = bytes_to_skip;
     return true;
 }
 
-int(CEF_CALLBACK read)(
-    struct LocalResourceHandler* self,
+bool LocalResourceHandler::Read(
     void* data_out,
     int bytes_to_read,
-    int* bytes_read,
-    struct _cef_resource_read_callback_t* callback
+    int& bytes_read,
+    CefRefPtr<CefResourceReadCallback> callback
 ) {
-
-    *bytes_read = 0;
-    if (self->reader == NULL) return false;
-
+    bytes_read = 0;
+    if (this->reader == NULL) return false;
     int read = 0;
-
     do {
-        read = static_cast<int>(self->reader->read(self->reader, (char*)data_out + *bytes_read, 1, bytes_to_read - *bytes_read));
-        *bytes_read += read;
-    } while (read != 0 && *bytes_read < bytes_to_read);
+        read = static_cast<int>(
+            this->reader->Read(static_cast<char*>(data_out) + bytes_read, 1,
+                bytes_to_read - bytes_read));
+        bytes_read += read;
+    } while (read != 0 && bytes_read < bytes_to_read);
 
-    return (*bytes_read > 0);
+    return (bytes_read > 0);
 }
 
-void(CEF_CALLBACK cancel)(struct LocalResourceHandler self) {
+void LocalResourceHandler::Cancel() {
 
-}
-
-LocalResourceHandler::LocalResourceHandler(const cef_string_t& src) {
-    cef_string_copy(src.str, src.length, &this->file);
-    
-    this->handler.base.size = sizeof(LocalResourceHandler);
-    this->handler.base.add_ref = (decltype(cef_base_ref_counted_t::add_ref))&add_ref;
-    this->handler.base.release = (decltype(cef_base_ref_counted_t::release))&release;
-    this->handler.base.has_one_ref = (decltype(cef_base_ref_counted_t::has_one_ref))&has_one_ref;
-    this->handler.base.has_at_least_one_ref = (decltype(cef_base_ref_counted_t::has_at_least_one_ref))&has_at_least_one_ref;
-    
-    this->handler.get_response_headers = (decltype(cef_resource_handler_t::get_response_headers))&get_response_headers;
-    this->handler.open = (decltype(cef_resource_handler_t::open))&open;
-    this->handler.skip = (decltype(cef_resource_handler_t::skip))&skip;
-    this->handler.read = (decltype(cef_resource_handler_t::read))&read;
-    this->handler.cancel = (decltype(cef_resource_handler_t::cancel))&cancel;
-
-    std::wofstream log("D:/log/alloc.log", std::ios_base::app | std::ios_base::out);
-    log << L"[allocated]: " << L"LocalResourceHandler(" << std::to_wstring((uintptr_t)this) << L")\n";
-    log.close();
 }
